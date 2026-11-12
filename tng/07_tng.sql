@@ -257,7 +257,8 @@
 	;
 	
 	
-	-- 고치면
+	-- 땡 또틀림 그래서
+	-- 내방식대로 다시 고치면
 	SELECT
     emp.emp_id
     , (SELECT AVG(sal.salary)
@@ -281,7 +282,7 @@
 	
 	
 
-	-- 이게정답.
+	-- 다른방식 정답.
 	SELECT 
 		tite.emp_id
 		, AVG(sal.salary) avg_sal
@@ -353,7 +354,7 @@
 	-- 내 쿼리는 avg_sal이 NULL로 나온다. 건수가 다르면 이 경우를 의심..
 
 
-	-- 정답
+	-- 다른 방식 정답
 		SELECT 
 		tite.emp_id
 		, emp.`name`
@@ -447,9 +448,90 @@
 
 -- ------------------------------
 -- 전체 평균 급여보다 높은 급여를 받은 기록을 조회
+-- 전체 니깐 salaries
+-- 어라..? 질무이 왜 다르징 ㅇ..ㅇ;;;
 
 	
+	SELECT 
+		*
+		, (SELECT 
+			AVG(salary) 
+				FROM salaries) avg_sal
+	FROM salaries sal
+	WHERE sal.salary > (SELECT AVG(salary) FROM salaries)
+	;
+	
+	-- 다른방법으로 간단하게 하면 이렇게도 가능하다고함.
+	SELECT 
+		*
+	FROM salaries
+	WHERE salary > (SELECT AVG(salary) FROM salaries)
+	; 
+	
+	
+	-- select만든후 서리쿼리를 만든후 별칭후 줘서 수식을 정해도 먹지않음? 흠 ;;; 
+
+-- 진짜 진짜 문제!!! 
+-- -- 전체 평균 급여보다 높은 급여를 받는 사원의 사번, 이름, 현재급여를 조회
+	SELECT 
+		emp.emp_id
+		,emp.`name`
+		,sal.salary
+	FROM employees emp
+		JOIN salaries sal
+		 ON emp.emp_id = sal.emp_id
+		 	AND sal.end_at IS NULL 
+		 	AND emp.fire_at IS NULL
+	WHERE
+		sal.salary >= (
+			SELECT 
+				AVG(salary)
+			FROM salaries
+			WHERE
+				end_at IS NULL
+				
+		)  -- 서브쿼리는 먼저 실행이 되기때문에 테이블이 하나이기때문에 dbs?가 햇갈려 하지않느당 
+		; 
+
 
 
 
 -- 가장 높은 급여를 받은 이력이있는 사원의 사번과 급여를 조회
+-- emp.emp_id , salary
+ 	SELECT 
+ 		emp.emp_id
+ 		,sal.salary
+ 	FROM employees emp
+ 		JOIN salaries sal
+ 			ON emp.emp_id = sal.emp_id 
+ 		
+ 		JOIN (SELECT MAX(salary)max_sal 
+		 		FROM salaries)salmax
+		 	ON sal.salary = salmax.max_sal
+		 		AND sal.end_at IS NULL
+		 		AND emp.fire_at IS NULL
+ 	;
+
+
+
+-- 다른 방법
+
+	SELECT 
+ 		emp_id
+ 		,salary
+ 	FROM salaries 
+ 	WHERE	
+ 		salary = (
+		 SELECT 
+		 	MAX(salary)
+			FROM salaries
+		 )
+		 ;
+
+
+
+
+
+
+
+
